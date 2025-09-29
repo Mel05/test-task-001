@@ -40,12 +40,12 @@ export default function Modal() {
 
 		if (response.ok) {
 			const data: UploadResponse = await response.json()
-			console.log(
+			alert(
 				`Данные успешно отправлены!\nТекст: ${data.receivedText}\nФайл: ${data.receivedFile}`
 			)
 			closeModal()
 		} else {
-			console.log('Ошибка отправки данных.')
+			alert('Ошибка отправки данных.')
 		}
 	}
 
