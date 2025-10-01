@@ -14,41 +14,33 @@ export default function CsrScreen() {
 	const [hasError, setHasError] = useState(false)
 
 	useEffect(() => {
-		setLoading(true)
-		setHasError(false)
+		const fetchPosts = async () => {
+			setLoading(true)
+			setHasError(false)
 
-		// Первым делом запрашиваем внешний ресурс
-		fetch('https://jsonplaceholder.typicode.com/posts')
-			.then(response => {
-				if (!response.ok) {
-					throw new Error('Не удалось получить данные с внешнего API')
-				}
-				return response.json()
-			})
-			.then((data: Post[]) => {
+			const fetchAndSetPosts = async (url: string) => {
+				const response = await fetch(url)
+				if (!response.ok)
+					throw new Error(`API вернул статус ${response.status}`)
+				const data = await response.json()
 				setPosts(data.slice(0, 5))
+			}
+
+			try {
+				await fetchAndSetPosts('https://jsonplaceholder.typicode.com/posts')
+			} catch {
+				try {
+					await fetchAndSetPosts(`${requestPath}/api/posts`)
+				} catch {
+					setPosts([])
+					setHasError(true)
+				}
+			} finally {
 				setLoading(false)
-			})
-			.catch(() => {
-				// Если внешний API недоступен, идём на внутренний
-				fetch(`${requestPath}/api/posts`)
-					.then(response => {
-						if (!response.ok) {
-							throw new Error('Не удалось получить данные с внутреннего API')
-						}
-						return response.json()
-					})
-					.then((data: Post[]) => {
-						setPosts(data.slice(0, 5))
-					})
-					.catch(() => {
-						console.error('Ошибка при обращении к внутренним данным.')
-						setHasError(true) // Сообщаем о произошедшей ошибке
-					})
-					.finally(() => {
-						setLoading(false) // Завершение загрузки
-					})
-			})
+			}
+		}
+
+		fetchPosts()
 	}, [])
 
 	return (
