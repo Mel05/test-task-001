@@ -27,6 +27,7 @@ export default function CsrScreen() {
 			})
 			.then((data: Post[]) => {
 				setPosts(data.slice(0, 5))
+				setLoading(false)
 			})
 			.catch(() => {
 				// Если внешний API недоступен, идём на внутренний
